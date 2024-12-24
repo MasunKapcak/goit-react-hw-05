@@ -1,47 +1,42 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./App.css";
+import Navigation from "./components/Navigation";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const API_KEY = "49b4c2d0893203951efcf1028e191267";
+  const BASE_URL = "https://api.themoviedb.org/3";
+  const PATH = "/trending/movie";
+
+  const [movies, setMovies] = useState([]);
+
+  async function fetchMovies() {
+    const options = {
+      headers: {
+        accept: "application/json",
+      },
+      params: {
+        api_key: API_KEY,
+        time_window: "day", // Replace `{time_window}` with 'day' or 'week'
+      },
+    };
+    const response = await axios.get(`${BASE_URL}${PATH}/day`, options);
+    const trendMovies = response.data.results;
+    console.log(trendMovies);
+    setMovies(trendMovies);
+  }
+
+  useEffect(() => {
+    fetchMovies();
+  }, []);
+
+  useEffect(() => {
+    console.log(movies);
+  }, [movies]); // This ensures the log happens whenever `movies` is updated.
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <p
-          style={{
-            fontSize: "2rem",
-            fontWeight: "bold",
-            color: "red",
-            margin: "0",
-            padding: "0",
-            textAlign: "center",
-            marginBottom: "20px",
-            border: "1px solid red",
-            borderRadius: "5px",
-          }}
-        >
-          {count}
-        </p>
-        <button onClick={() => setCount((count) => count + 1)}>count +</button>
-        <button onClick={() => setCount((count) => count - 1)}>count -</button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Navigation trendMovies={movies}></Navigation>
     </>
   );
 }
